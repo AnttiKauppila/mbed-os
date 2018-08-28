@@ -229,12 +229,15 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
                                              _params.rx_buffer + 1)) {
         return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     }
+    _params.rx_buffer[0] = payload[0];
 
     //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
     if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         stype = LW1_1;
+        tr_debug("LoRaWAN 1.1.x server");
     } else {
         stype = LW1_0_2;
+        tr_debug("LoRaWAN 1.0.x server");
         //Server does not support LW 1.1 so we need to unset JS keys
         memcpy(_params.keys.js_intkey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
         memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
@@ -245,7 +248,6 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     uint8_t args_size = 0;
     uint8_t args[16];
 
-    _params.rx_buffer[0] = payload[0];
     uint8_t *mic_key = _params.keys.js_intkey; //in case of LW1.0.2 js_intkey == nwk_key == app_key
 
     if (stype == LW1_0_2) {
