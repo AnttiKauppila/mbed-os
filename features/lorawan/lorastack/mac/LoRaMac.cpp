@@ -431,7 +431,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                              address,
                                              DOWN_LINK,
                                              downlink_counter,
-                                             _params.rx_buffer) != 0) {
+                                             _params.rx_buffer, 1) != 0) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
             }
 
@@ -470,7 +470,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                      address,
                                      DOWN_LINK,
                                      downlink_counter,
-                                     _params.rx_buffer) != 0) {
+                                     _params.rx_buffer, 1) != 0) {
         _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     } else {
         _mcps_indication.buffer = _params.rx_buffer;
@@ -492,7 +492,7 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
                                                   _params.keys.nwk_senckey, sizeof(_params.keys.nwk_senckey) * 8,
                                                   _params.dev_addr, DOWN_LINK,
                                                   _params.dl_frame_counter,
-                                                  buffer)) {
+                                                  buffer, 0)) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return false;
             }
@@ -1813,7 +1813,8 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                                                                   sizeof(_params.keys.nwk_senckey) * 8,
                                                                   _params.dev_addr, UP_LINK,
                                                                   _params.ul_frame_counter,
-                                                                  &_params.tx_buffer[pkt_header_len])) {
+                                                                  &_params.tx_buffer[pkt_header_len],
+                                                                  0)) {
                                 status = LORAWAN_STATUS_CRYPTO_FAIL;
                             }
                             pkt_header_len += mac_commands_len;
@@ -1846,17 +1847,21 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
                 uint8_t *key = _params.keys.app_skey;
                 uint32_t key_length = sizeof(_params.keys.app_skey) * 8;
+                uint16_t counter_start = 1;
                 if (frame_port == 0) {
                     _mac_commands.clear_command_buffer();
                     key = _params.keys.nwk_senckey;
                     key_length = sizeof(_params.keys.nwk_senckey) * 8;
+                    counter_start = 0;
                 }
+
                 if (0 != _lora_crypto.encrypt_payload((uint8_t *) payload,
                                                       _params.tx_buffer_len,
                                                       key, key_length,
                                                       _params.dev_addr, UP_LINK,
                                                       _params.ul_frame_counter,
-                                                      &_params.tx_buffer[pkt_header_len])) {
+                                                      &_params.tx_buffer[pkt_header_len],
+                                                      counter_start)) {
                     status = LORAWAN_STATUS_CRYPTO_FAIL;
                 }
             }

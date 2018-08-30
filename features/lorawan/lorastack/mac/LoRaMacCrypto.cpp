@@ -112,11 +112,12 @@ exit: mbedtls_cipher_free(aes_cmac_ctx);
 int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
                                    const uint8_t *key, const uint32_t key_length,
                                    uint32_t address, uint8_t dir, uint32_t seq_counter,
-                                   uint8_t *enc_buffer)
+                                   uint8_t *enc_buffer,
+                                   uint16_t ctr_start)
 {
     uint16_t i;
     uint8_t bufferIndex = 0;
-    uint16_t ctr = 1;
+    uint16_t ctr = ctr_start;
     int ret = 0;
 
     mbedtls_aes_init(&aes_ctx);
@@ -170,10 +171,10 @@ exit: mbedtls_aes_free(&aes_ctx);
 int LoRaMacCrypto::decrypt_payload(const uint8_t *buffer, uint16_t size,
                                    const uint8_t *key, uint32_t key_length,
                                    uint32_t address, uint8_t dir, uint32_t seq_counter,
-                                   uint8_t *dec_buffer)
+                                   uint8_t *dec_buffer, uint16_t ctr_start)
 {
     return encrypt_payload(buffer, size, key, key_length, address, dir, seq_counter,
-                           dec_buffer);
+                           dec_buffer, ctr_start);
 }
 
 int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,

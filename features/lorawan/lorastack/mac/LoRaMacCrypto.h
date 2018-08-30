@@ -81,7 +81,8 @@ public:
     int encrypt_payload(const uint8_t *buffer, uint16_t size,
                         const uint8_t *key, uint32_t key_length,
                         uint32_t address, uint8_t dir, uint32_t seq_counter,
-                        uint8_t *enc_buffer);
+                        uint8_t *enc_buffer,
+                        uint16_t ctr_start);
 
     /**
      * Performs payload decryption
@@ -100,7 +101,8 @@ public:
     int decrypt_payload(const uint8_t *buffer, uint16_t size,
                         const uint8_t *key, uint32_t key_length,
                         uint32_t address, uint8_t dir, uint32_t seq_counter,
-                        uint8_t *dec_buffer);
+                        uint8_t *dec_buffer,
+                        uint16_t ctr_start);
 
     /**
      * Computes the LoRaMAC Join Request frame MIC field

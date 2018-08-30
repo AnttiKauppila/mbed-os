@@ -326,10 +326,7 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
     } else if (_link_check_requested) {
         // add a link check request with normal data, until the application
         // explicitly removes it.
-        lorawan_status_t stat = set_link_check_request();
-        if (stat != LORAWAN_STATUS_OK) {
-            return stat;
-        }
+        _loramac.setup_link_check_request();
     }
 
     if (_device_mode_ind_needed) {
@@ -457,7 +454,6 @@ lorawan_status_t LoRaWANStack::set_link_check_request()
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    _link_check_requested = true;
     if (!_callbacks.link_check_resp) {
         tr_error("Must assign a callback function for link check request. ");
         return LORAWAN_STATUS_PARAMETER_INVALID;
