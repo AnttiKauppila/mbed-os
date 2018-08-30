@@ -156,6 +156,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
 
     while (mac_index < commands_size) {
         // Decode Frame MAC commands
+        tr_info("MAC Command %02X...", payload[mac_index]);
         switch (payload[mac_index++]) {
             case SRV_MAC_RESET_CONF: {
                 loramac_mlme_confirm_t mlme_conf;
@@ -386,7 +387,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 break;
             default:
                 // Unknown command. ABORT MAC commands processing
-                ret_value = LORAWAN_STATUS_UNSUPPORTED;
+                return LORAWAN_STATUS_UNSUPPORTED;
         }
     }
     return ret_value;
