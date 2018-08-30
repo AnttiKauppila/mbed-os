@@ -1,3 +1,4 @@
+#include <stdio.h>
 /**
  / _____)             _              | |
 ( (____  _____ ____ _| |_ _____  ____| |__
@@ -229,12 +230,15 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
                                              _params.rx_buffer + 1)) {
         return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     }
+    _params.rx_buffer[0] = payload[0];
 
     //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
     if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         stype = LW1_1;
+        tr_debug("LoRaWAN 1.1.x server");
     } else {
         stype = LW1_0_2;
+        tr_debug("LoRaWAN 1.0.x server");
         //Server does not support LW 1.1 so we need to unset JS keys
         memcpy(_params.keys.js_intkey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
         memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
@@ -245,7 +249,6 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     uint8_t args_size = 0;
     uint8_t args[16];
 
-    _params.rx_buffer[0] = payload[0];
     uint8_t *mic_key = _params.keys.js_intkey; //in case of LW1.0.2 js_intkey == nwk_key == app_key
 
     if (stype == LW1_0_2) {
@@ -301,6 +304,26 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
                                                       _params.server_type) != 0) {
             return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
         }
+
+        printf("nwk_skey: ");
+        for (int i = 0; i < 16; i++)
+            printf("%02X ", _params.keys.nwk_skey[i]);
+        printf("\r\n");
+
+        printf("app_skey: ");
+        for (int i = 0; i < 16; i++)
+            printf("%02X ", _params.keys.app_skey[i]);
+        printf("\r\n");
+
+        printf("snwk_sintkey: ");
+        for (int i = 0; i < 16; i++)
+            printf("%02X ", _params.keys.snwk_sintkey[i]);
+        printf("\r\n");
+
+        printf("nwk_senckey: ");
+        for (int i = 0; i < 16; i++)
+            printf("%02X ", _params.keys.nwk_senckey[i]);
+        printf("\r\n");
 
         _params.net_id = (uint32_t) _params.rx_buffer[payload_start + 3];
         _params.net_id |= ((uint32_t) _params.rx_buffer[payload_start + 4] << 8);
@@ -486,7 +509,7 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
         uint8_t buffer[15];
 
         if (_params.server_type == LW1_1) {
-            if (0 != _lora_crypto.encrypt_payload(payload + 8, fopts_len,
+            if (0 != _lora_crypto.decrypt_payload(payload + 8, fopts_len,
                                                   _params.keys.nwk_senckey, sizeof(_params.keys.nwk_senckey) * 8,
                                                   _params.dev_addr, DOWN_LINK,
                                                   _params.dl_frame_counter,
@@ -1801,6 +1824,12 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                         _params.tx_buffer[0x05] = fctrl->value;
 
                         const uint8_t *buffer = _mac_commands.get_mac_commands_buffer();
+
+                        printf("MAC commands : ");
+                        for (int a = 0; a < mac_commands_len; a++)
+                            printf("%02X ", buffer[a]);
+                        printf("\r\n");
+
                         if (_params.server_type == LW1_1) {
                             if (0 != _lora_crypto.encrypt_payload(buffer, mac_commands_len,
                                                                   _params.keys.nwk_senckey,
@@ -1865,6 +1894,8 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                 status = LORAWAN_STATUS_CRYPTO_FAIL;
             }
 
+            tr_info("_params.ul_frame_counter = %d", _params.ul_frame_counter);
+
             if (_params.server_type == LW1_1) {
                 if (_params.is_srv_ack_requested) {
                     args = _params.counterForAck;
@@ -1884,6 +1915,8 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                 _params.tx_buffer[_params.tx_buffer_len + 1] = (mic2 >> 8) & 0xFF;
                 _params.tx_buffer[_params.tx_buffer_len + 2] = mic & 0xFF;
                 _params.tx_buffer[_params.tx_buffer_len + 3] = (mic >> 8) & 0xFF;
+
+                tr_info("LoRaWAN 1.1.x MIC1 = 0x%x, MIC2 = 0x%x", mic, mic2);
             } else {
                 _params.tx_buffer[_params.tx_buffer_len + 0] = mic & 0xFF;
                 _params.tx_buffer[_params.tx_buffer_len + 1] = (mic >> 8) & 0xFF;
@@ -1892,6 +1925,11 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             }
 
             _params.tx_buffer_len += LORAMAC_MFR_LEN;
+
+            printf("tx_buf (%d):", _params.tx_buffer_len);
+            for (int b = 0; b < _params.tx_buffer_len; b++)
+                printf("%02X ", _params.tx_buffer[b]);
+            printf("\r\n");
         }
             break;
         case FRAME_TYPE_PROPRIETARY:
