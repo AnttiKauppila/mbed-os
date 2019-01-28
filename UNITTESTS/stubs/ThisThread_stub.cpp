@@ -19,6 +19,10 @@
 
 namespace rtos {
 
+void ThisThread::sleep_for(uint32_t millisec)
+{
+}
+
 void ThisThread::sleep_until(uint64_t millisec)
 {
 }

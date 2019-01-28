@@ -30,7 +30,7 @@
 void wait(float s)
 {
     if ((s >= 0.01f)  && core_util_are_interrupts_enabled()) {
-        wait_ms(s * 1000.0f);
+        rtos::ThisThread::sleep_for(s * 1000.0f);
         return;
     }
 
