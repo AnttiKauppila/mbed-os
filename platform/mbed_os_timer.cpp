@@ -92,12 +92,14 @@ struct timed_predicate_op {
 
     void sleep_prepare()
     {
-        os_timer->set_wake_time(wake_time);
+        if (wake_time != (uint64_t) -1) {
+            os_timer->set_wake_time(wake_time);
+        }
     }
 
     bool sleep_prepared()
     {
-        return os_timer->wake_time_set() || wake_time == (uint64_t) -1;
+        return wake_time == (uint64_t) -1 || os_timer->wake_time_set();
     }
 
 private:
