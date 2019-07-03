@@ -7290,7 +7290,8 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
         "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA"
+        "device_name": "nRF52840_xxAA",
+        "macros_add": ["CONFIG_GPIO_AS_PINRESET", "NRF52_ERRATA_20"]
     },
     "MTB_LAIRD_BL654": {
         "inherits": ["MCU_NRF52840"],
