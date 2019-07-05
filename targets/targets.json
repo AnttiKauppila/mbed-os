@@ -7245,7 +7245,6 @@
             "SPI",
             "SPI_ASYNCH",
             "SYSTICK_CLK_OFF_DURING_SLEEP",
-            "TRNG",
             "USTICKER",
             "QSPI",
             "USBDEVICE"
@@ -7280,7 +7279,7 @@
         },
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR", "uARM"],
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,

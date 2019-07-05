@@ -34,6 +34,8 @@
 #define NS_NVM_FLUSH        0x05
 #define NS_NVM_KEY_DELETE   0x06
 
+#ifndef MBED_CONF_RTOS_API_PRESENT
+
 typedef struct {
     ns_nvm_callback *callback;
     const char *client_key_name;
@@ -227,3 +229,5 @@ static void ns_nvm_operation_end(ns_nvm_request_t *ns_nvm_request_ptr, int clien
         }
     }
 }
+
+#endif

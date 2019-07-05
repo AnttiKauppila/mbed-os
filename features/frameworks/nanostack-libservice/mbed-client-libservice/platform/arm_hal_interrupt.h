@@ -21,6 +21,10 @@ extern "C" {
 #endif
 #include <stdint.h>
 
+#ifdef MBED_CONF_RTOS_API_PRESENT
+void platform_enter_critical(void){}
+void platform_exit_critical(void){}
+#else
 /**
  * \brief This function disable global interrupts.
  */
@@ -29,6 +33,8 @@ extern void platform_enter_critical(void);
  * \brief This function enable global interrupts.
  */
 extern void platform_exit_critical(void);
+
+#endif
 
 /**
  * \brief This function increments the disable IRQ counter.

@@ -231,8 +231,9 @@ osThreadId_t ThisThread::get_id()
 #if MBED_CONF_RTOS_PRESENT
     return osThreadGetId();
 #else
-    extern int main();
-    return (osThreadId_t) main;
+//    extern int main();
+//    return (osThreadId_t) main;
+    return 0;
 #endif
 }
 

@@ -194,7 +194,7 @@ def get_toolchain_name(target, toolchain_name):
             if "ARMC5" in target.supported_toolchains:
                 return "uARM" #use ARM_MICRO to use AC5+microlib
             else:
-                return "ARMC6" #use AC6+microlib
+                return "ARM" #use AC6+microlib
     else:
         if toolchain_name == "ARM":
             if CORE_ARCH[target.core] == 8:
@@ -233,7 +233,7 @@ def find_valid_toolchain(target, toolchain):
     last_error = None
     for index, toolchain_name in enumerate(toolchain_names):
         internal_tc_name = get_toolchain_name(target, toolchain_name)
-        if toolchain == "ARM" and toolchain_name == "ARMC5" and index != 0:
+        if toolchain == "ARM" and toolchain_name == "UARM" and index != 0:
             end_warnings.append(ARMC5_MIGRATION_WARNING)
         if not TOOLCHAIN_CLASSES[internal_tc_name].check_executable():
             search_path = TOOLCHAIN_PATHS[internal_tc_name] or "No path set"
